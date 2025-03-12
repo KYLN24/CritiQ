@@ -3,44 +3,16 @@ import os
 import random
 import sys
 from copy import deepcopy
-from dataclasses import dataclass
 from subprocess import PIPE, STDOUT, Popen
-from typing import Literal, Sequence, TypedDict
+from typing import Sequence
 
 from prettytable import PrettyTable
+
+from .types import Criterion, PairData, ZeroOneData
 
 USE_TQDM = sys.stderr.isatty() or os.environ.get("WORKFLOW_USE_TQDM", "0") == "1"
 SHOW_DEBUG = os.environ.get("WORKFLOW_SHOW_DEBUG", "0") == "1"
 MANAGER_MAX_CONCURRENT = int(os.environ.get("WORKFLOW_MANAGER_MAX_CONCURRENT", "1"))
-
-@dataclass
-class Criterion:
-    name: str
-    description: str
-    score: float = 0  # highest valid accuracy
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "description": self.description,
-            "score": self.score,
-        }
-
-    @staticmethod
-    def from_dict(d):
-        return Criterion(**d)
-
-
-class ZeroOneData(TypedDict):
-    text: str
-    label: Literal[0, 1]
-
-
-class PairData(TypedDict):
-    A: str
-    B: str
-    answer: Literal["A", "B"]
-
 
 def parse_json(text: str) -> dict:
     try:

@@ -1,13 +1,12 @@
-import json
 from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
 from typing import Literal, Sequence
 
 from tqdm import tqdm
 
 from .agent import Agent
 from .i18n import local_prompts
+from .types import EvaluationOutput, PredictionOutput, PredictionOutputWithAnswer
 from .utils import (
     USE_TQDM,
     Criterion,
@@ -19,37 +18,6 @@ from .utils import (
     print_debug,
     reverse_ab,
 )
-
-PredictionOutput = list[
-    dict[str, dict[Literal["A", "B"] | Literal[0, 1], int]]
-]  # output[data_idx][criterion_name] = {"A": ..., "B": ...}
-
-
-@dataclass
-class PredictionOutputWithAnswer:
-    prediction: PredictionOutput
-    answer: list[Literal["A", "B", None] | Literal[0, 1, None]]
-    thoughts: list[dict[str, str]] | None = None
-
-
-@dataclass
-class EvaluationOutput:
-    prediction: PredictionOutput
-    is_correct: list[bool]  # True if the voting result is correct
-    per_criterion_acc: dict[str, float]  # accuracy for each criterion
-    accuracy: float
-    thoughts: list[dict[str, str]] | None = None
-
-    def __str__(self):
-        criteria = list(self.per_criterion_acc.keys())
-        output_json = {}
-        for c in criteria:
-            n_refuse = sum([p[c]["U"] for p in self.prediction])
-            output_json[c] = {
-                "Accuracy": self.per_criterion_acc[c],
-                "Refuse to Respond": f"{n_refuse / len(self.prediction)} ({n_refuse})",
-            }
-        return f"Accuracy: {self.accuracy}\nCorrect: {self.is_correct}\n{json.dumps(output_json, ensure_ascii=False, indent=4)}"
 
 
 class Evaluator:
