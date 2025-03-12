@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Literal, NotRequired, TypedDict
+from typing import Any, Literal, NotRequired, Type, TypedDict
 
 
 @dataclass
@@ -74,3 +74,20 @@ class PredictionOutputWithAnswer:
     prediction: PredictionOutput
     answer: list[Literal["A", "B", None] | Literal[0, 1, None]]
     thoughts: list[dict[str, str]] | None = None
+
+@dataclass
+class Prompts:
+    ...
+
+class BaseMetaTask:
+    data_type: Type[DataType]
+    prompts: Prompts
+
+    def judge(self, criterion, data: DataType) -> Any:
+        raise NotImplementedError
+
+    def metric(self, data: DataType, judge_output: Any) -> float:
+        raise NotImplementedError
+
+    def voting_fn(self, judge_outputs: list[Any]) -> Any:
+        raise NotImplementedError
