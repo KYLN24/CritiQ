@@ -2,3 +2,6 @@ __pycache__
 .local
 *.egg-info/
 build/
+# Local configuration files
+config_local.py
+output/
