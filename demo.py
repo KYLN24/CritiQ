@@ -1,5 +1,6 @@
 import random
 from critiq.workflow import PairEvaluator, Workflow
+from critiq.utils.json_parser import JSONParser
 
 # Import local configuration if available, otherwise use defaults
 try:
@@ -56,7 +57,7 @@ for x, y in zip(set0, set1):
 train_set = dataset[:2]
 valid_set = dataset[2:4]
 
-# Configure the workflow
+# Configure the workflow with environment variables
 workflow_state_dict = {
     "manager_args": {
         **DEFAULT_WORKER_CONFIG,
@@ -68,6 +69,9 @@ workflow_state_dict = {
     "worker_max_concurrent": 2,  # Reduced for testing
     "n_criteria": 5,  # Reduced for testing
     "manager_prompt": "Give 5 criteria for evaluating code quality. The code snippet may be a short script or a file from a large project. Your criteria should be generally applicable to all code, not specific to any particular language or domain.",
+    "use_tqdm": True,  # Enable progress bars
+    "show_debug": True,  # Show debug information
+    "manager_max_concurrent": 2,  # Limit concurrent manager operations
 }
 
 # Initialize and configure the workflow
@@ -97,8 +101,15 @@ workflow.optimize(
     threshold=(0.5, 0.75),
     output_dir="output",
 )
-print(workflow.get_best_criteria())
+
+# Get and print best criteria
+best_criteria = workflow.get_best_criteria()
+print("\nBest criteria:")
+for criterion in best_criteria:
+    print(f"- {criterion.name}: {criterion.description} (score: {criterion.score:.2f})")
 
 # Final evaluation
-eval_output = evaluator.eval(workflow.get_best_criteria())
-print("Final:", eval_output.accuracy, eval_output.is_correct)
+eval_output = evaluator.eval(best_criteria)
+print("\nFinal evaluation:")
+print(f"Accuracy: {eval_output.accuracy:.2f}")
+print(f"Correct predictions: {sum(eval_output.is_correct)}/{len(eval_output.is_correct)}")

@@ -29,6 +29,8 @@ from .utils import (
 
 
 class Workflow:
+    """A workflow for managing and optimizing evaluation criteria."""
+    
     def __init__(
         self,
         manager_args: dict[str, Any] | None = None,
@@ -41,7 +43,16 @@ class Workflow:
         manager_prompt: str | None = None,
         manager_prompt_postfix: str | None = None,
         worker_prompt: str | None = None,
+        use_tqdm: bool | None = None,
+        show_debug: bool | None = None,
+        manager_max_concurrent: int | None = None,
     ) -> None:
+        # Environment variables with defaults
+        self.use_tqdm = use_tqdm if use_tqdm is not None else os.environ.get("WORKFLOW_USE_TQDM", "0") == "1"
+        self.show_debug = show_debug if show_debug is not None else os.environ.get("WORKFLOW_SHOW_DEBUG", "0") == "1"
+        self.manager_max_concurrent = manager_max_concurrent if manager_max_concurrent is not None else int(os.environ.get("WORKFLOW_MANAGER_MAX_CONCURRENT", "1"))
+        
+        # Model configuration
         self.manager_args = {
             "model": "gpt-4o",
             "request_kwargs": {
@@ -57,6 +68,7 @@ class Workflow:
 
         self.worker_max_concurrent = worker_max_concurrent
 
+        # Criteria management
         self.current_criteria: list[Criterion] = (
             [
                 c if isinstance(c, Criterion) else Criterion.from_dict(c)
@@ -70,6 +82,7 @@ class Workflow:
 
         self.n_criteria = n_criteria
 
+        # Prompts
         self.manager_prompt = (
             manager_prompt
             or local_prompts.MANAGER_PROMPT_TEMPLATE.format(n_criteria=self.n_criteria)
@@ -80,6 +93,18 @@ class Workflow:
 
         self.worker_prompt = worker_prompt
         self.thoughts = []
+
+    def set_current_criteria(self, criteria: Sequence[Criterion | dict[Literal["name", "description"], str]]) -> None:
+        """Set the current criteria list.
+        
+        Args:
+            criteria: List of criteria to set as current criteria
+        """
+        self.current_criteria = [
+            c if isinstance(c, Criterion) else Criterion.from_dict(c)
+            for c in criteria
+        ]
+        self._update_criteria(self.all_criteria, self.current_criteria)
 
     def _update_criteria(
         self,

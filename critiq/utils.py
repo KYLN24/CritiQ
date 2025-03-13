@@ -9,21 +9,18 @@ from typing import Sequence
 from prettytable import PrettyTable
 
 from .types import Criterion, PairData, ZeroOneData
+from .utils.json_parser import JSONParser
 
 USE_TQDM = sys.stderr.isatty() or os.environ.get("WORKFLOW_USE_TQDM", "0") == "1"
 SHOW_DEBUG = os.environ.get("WORKFLOW_SHOW_DEBUG", "0") == "1"
 MANAGER_MAX_CONCURRENT = int(os.environ.get("WORKFLOW_MANAGER_MAX_CONCURRENT", "1"))
 
 def parse_json(text: str) -> dict:
-    try:
-        text = "{" + text.split("{", 1)[-1].strip().rsplit("}", 1)[0].strip() + "}"
-        result = json.loads(
-            text,
-            strict=False,
-        )
-        return result
-    except Exception as e:
-        raise ValueError(f"Failed to parse JSON: {text}") from e
+    """Parse JSON text into a dictionary.
+    
+    This is a wrapper around JSONParser.parse for backward compatibility.
+    """
+    return JSONParser.parse(text)
 
 
 def reverse_ab(x):
