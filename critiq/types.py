@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
-from typing import Any, Literal, NotRequired, Type, TypedDict
-
+from typing import Any, Literal, Type, TypedDict
+from typing_extensions import NotRequired
 
 @dataclass
 class Criterion:
