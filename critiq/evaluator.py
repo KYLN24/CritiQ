@@ -6,12 +6,17 @@ from tqdm import tqdm
 
 from .agent import Agent
 from .i18n import local_prompts
-from .types import EvaluationOutput, PredictionOutput, PredictionOutputWithAnswer
+from .types import (
+    Criterion,
+    DataType,
+    EvaluationOutput,
+    PairData,
+    PredictionOutput,
+    PredictionOutputWithAnswer,
+    ZeroOneData,
+)
 from .utils import (
     USE_TQDM,
-    Criterion,
-    PairData,
-    ZeroOneData,
     is_pair_dataset,
     is_zero_one_dataset,
     parse_json,

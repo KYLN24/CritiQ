@@ -9,10 +9,12 @@ from .evaluator import (
     ZeroOneEvaluator,
     get_evaluator_cls_from_dataset,
 )
-from .utils import (
+from .types import (
     Criterion,
     PairData,
     ZeroOneData,
+)
+from .utils import (
     criteria_list_to_dict,
     is_pair_data,
     is_pair_dataset,

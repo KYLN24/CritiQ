@@ -5,3 +5,10 @@ build/
 # Local configuration files
 config_local.py
 output/
+*.log
+*.json
+*.jsonl
+*.jsonl.gz
+*.jsonl.gz.part
+*.jsonl.gz.part.1
+*.jsonl.gz.part.2

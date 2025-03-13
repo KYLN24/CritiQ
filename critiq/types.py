@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Literal, Type, TypedDict
 from typing_extensions import NotRequired
 
+
 @dataclass
 class Criterion:
     name: str
@@ -75,9 +76,12 @@ class PredictionOutputWithAnswer:
     answer: list[Literal["A", "B", None] | Literal[0, 1, None]]
     thoughts: list[dict[str, str]] | None = None
 
+
 @dataclass
 class Prompts:
-    ...
+    """Base class for prompts."""
+    pass
+
 
 class BaseMetaTask:
     data_type: Type[DataType]

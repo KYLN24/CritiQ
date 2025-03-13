@@ -4,33 +4,49 @@ import random
 import sys
 from copy import deepcopy
 from subprocess import PIPE, STDOUT, Popen
-from typing import Sequence
+from typing import Sequence, Literal
 
 from prettytable import PrettyTable
 
-from .types import Criterion, PairData, ZeroOneData
-from .utils.json_parser import JSONParser
+from ..types import Criterion, PairData, ZeroOneData
+from .json_parser import ResponseJSONParser
 
+# Environment variables
 USE_TQDM = sys.stderr.isatty() or os.environ.get("WORKFLOW_USE_TQDM", "0") == "1"
 SHOW_DEBUG = os.environ.get("WORKFLOW_SHOW_DEBUG", "0") == "1"
 MANAGER_MAX_CONCURRENT = int(os.environ.get("WORKFLOW_MANAGER_MAX_CONCURRENT", "1"))
 
+# Import local configuration if available
+try:
+    from config_local import DEFAULT_WORKER_CONFIG
+except ImportError:
+    DEFAULT_WORKER_CONFIG = {
+        "model": "Qwen2.5-32B-Instruct",
+        "api_keys": "EMPTY",
+        "base_url": "http://10.130.1.235:30000/v1",
+    }
+
+# Create a global JSON parser instance with local configuration
+json_parser = ResponseJSONParser(model_config=DEFAULT_WORKER_CONFIG)
+
 def parse_json(text: str) -> dict:
     """Parse JSON text into a dictionary.
     
-    This is a wrapper around JSONParser.parse for backward compatibility.
+    This is a wrapper around ResponseJSONParser.parse_response for backward compatibility.
     """
-    return JSONParser.parse(text)
+    result = json_parser.parse_response(text)
+    if result is None:
+        raise ValueError(f"Failed to parse JSON: {text}")
+    return result
 
-
-def reverse_ab(x):
-    x = x[0].upper()
-    return {"A": "B", "B": "A"}[x]
-
+def reverse_ab(x: Literal["A", "B"]) -> Literal["A", "B"]:
+    """Reverse A to B and vice versa."""
+    return "B" if x == "A" else "A"
 
 def random_reverse(
     pair_dataset: Sequence[PairData], seed: int = 100745534
 ) -> list[PairData]:
+    """Randomly reverse pairs in a dataset."""
     pair_dataset = deepcopy(pair_dataset)
     random.seed(seed)
     random.shuffle(pair_dataset)
@@ -40,12 +56,12 @@ def random_reverse(
             d["answer"] = reverse_ab(d["answer"])
     return pair_dataset
 
-
 def zero_one_dataset_to_pair_dataset(
     zero_one_dataset: Sequence[ZeroOneData],
     copy_reverse: bool = False,
     seed: int = 196705814,
 ) -> list[PairData]:
+    """Convert zero-one dataset to pair dataset."""
     zero_one_dataset = deepcopy(zero_one_dataset)
     random.seed(seed)
     random.shuffle(zero_one_dataset)
@@ -67,15 +83,14 @@ def zero_one_dataset_to_pair_dataset(
 
     return pair_dataset
 
-
-def is_zero_one_data(data: dict):
+def is_zero_one_data(data: dict) -> bool:
+    """Check if data is a zero-one data."""
     if "label" in data and "text" in data:
         return data["label"] in (0, 1) and isinstance(data["text"], str)
-    else:
-        return False
+    return False
 
-
-def is_pair_data(data: dict):
+def is_pair_data(data: dict) -> bool:
+    """Check if data is a pair data."""
     return (
         "A" in data
         and isinstance(data["A"], str)
@@ -85,15 +100,16 @@ def is_pair_data(data: dict):
         and data["answer"] in ("A", "B")
     )
 
-
-def is_zero_one_dataset(dataset: Sequence[dict]):
+def is_zero_one_dataset(dataset: Sequence[dict]) -> bool:
+    """Check if dataset is a zero-one dataset."""
     return all(is_zero_one_data(data) for data in dataset)
 
-
-def is_pair_dataset(dataset: Sequence[dict]):
+def is_pair_dataset(dataset: Sequence[dict]) -> bool:
+    """Check if dataset is a pair dataset."""
     return all(is_pair_data(data) for data in dataset)
 
 def criteria_list_to_dict(criteria: Sequence) -> dict[str, Criterion]:
+    """Convert a list of criteria to a dictionary."""
     result = dict()
     for c in criteria:
         if c.name not in result or c.score >= result[c.name].score:
@@ -101,16 +117,18 @@ def criteria_list_to_dict(criteria: Sequence) -> dict[str, Criterion]:
     return result
 
 def load_criteria_from_json(path: str) -> list[Criterion]:
+    """Load criteria from a JSON file."""
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return [Criterion.from_dict(d) for d in data]
 
-
 def save_criteria_to_json(criteria: Sequence[Criterion], path: str):
+    """Save criteria to a JSON file."""
     with open(path, "w", encoding="utf-8") as f:
         json.dump([c.to_dict() for c in criteria], f, ensure_ascii=False, indent=4)
 
 def print_debug(*args, **kwargs):
+    """Print debug information if SHOW_DEBUG is True."""
     if SHOW_DEBUG:
         print(*args, **kwargs)
 
@@ -122,6 +140,7 @@ def launch_vllm_openai_api_server(
     port: int = 25555,
     gpu_memory_utilization: float = 0.95,
 ) -> Popen:
+    """Launch a vLLM OpenAI API server."""
     print(f"Launching vLLM API server at 127.0.0.1:{port}")
     p = Popen(
         [
@@ -170,6 +189,7 @@ def launch_sglang_openai_api_server(
     dp_size: int = 1,
     port: int = 25555,
 ) -> Popen:
+    """Launch a SGLang OpenAI API server."""
     print(f"Launching SGLang API server at 127.0.0.1:{port}")
     p = Popen(
         [
@@ -208,6 +228,7 @@ def launch_sglang_openai_api_server(
     return p
 
 def print_score_changes(output_folder: str, order: Sequence[str] | None = None):
+    """Print score changes for criteria over time."""
     order = order or sorted(os.listdir(output_folder))
     result = {}
     for i, f in enumerate(order):
@@ -221,4 +242,4 @@ def print_score_changes(output_folder: str, order: Sequence[str] | None = None):
     for c, scores in result.items():
         table.add_row([c] + scores)
 
-    print(table)
+    print(table) 

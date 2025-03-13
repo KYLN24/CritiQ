@@ -12,12 +12,15 @@ from tqdm import tqdm
 from .agent import Agent
 from .evaluator import PairEvaluator, ZeroOneEvaluator, get_evaluator_cls_from_dataset
 from .i18n import local_prompts
+from .types import (
+    Criterion,
+    DataType,
+    PairData,
+    ZeroOneData,
+)
 from .utils import (
     MANAGER_MAX_CONCURRENT,
     USE_TQDM,
-    Criterion,
-    PairData,
-    ZeroOneData,
     criteria_list_to_dict,
     is_pair_dataset,
     is_zero_one_dataset,

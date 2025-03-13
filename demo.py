@@ -1,6 +1,6 @@
 import random
 from critiq.workflow import PairEvaluator, Workflow
-from critiq.utils.json_parser import JSONParser
+from critiq.utils.json_parser import ResponseJSONParser
 
 # Import local configuration if available, otherwise use defaults
 try:
