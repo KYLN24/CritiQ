@@ -7,6 +7,7 @@
 <!-- - 
 - **Upcoming**: 🤗 We will release the knowledge base for *CritiQ Flow* on Hugging Face Hub.
 - **Upcoming**: 🤗 We will released the CritiQ Scorers for [code](https://huggingface.co/KYLN24/CritiQ-Scorer-Code), [math](https://huggingface.co/KYLN24/CritiQ-Scorer-Math), and [logic](https://huggingface.co/KYLN24/CritiQ-Scorer-Logic) on Hugging Face Hub. -->
+- **2025-05-16**: 🎉 Our paper has been accepted to the main conference of **ACL 2025**.
 - **2025-03-07**: 🛠️ We release the Python implementation of *CritiQ* on GitHub.
 - **2025-02-26**: 📝 We published the preprint [*CritiQ: Mining Data Quality Criteria from Human Preferences*](https://arxiv.org/abs/2502.19279) on arXiv.
 
