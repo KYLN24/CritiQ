@@ -8,6 +8,12 @@
 - **2025-03-07**: 🛠️ We release the Python implementation of *CritiQ* on GitHub.
 - **2025-02-26**: 📝 We published the preprint [*CritiQ: Mining Data Quality Criteria from Human Preferences*](https://arxiv.org/abs/2502.19279) on arXiv.
 
+## Introduction
+
+![](./assets/critiq.png)
+
+Language models require high‑quality data, yet common selection methods (heuristics, perplexity, classifiers, prompt engineering) are costly, expert‑heavy, and can introduce bias. CritiQ automatically learns interpretable quality criteria from ~30 human preference pairs and uses them to select data efficiently. CritiQ Flow evolves criteria with a manager agent and makes pairwise judgments with worker agents, optionally boosted by a knowledge base distilled from prior work. We then train a CritiQ Scorer to assign quality scores for scalable selection. Across code, math, and logic, CritiQ attains high accuracy on human‑annotated tests and improves downstream performance when continuing to train Llama 3.1 versus uniform sampling. Ablations confirm the benefits of the knowledge base and reflection, and we analyze criteria evolution and the effect of majority voting.
+
 ## Quick Start
 
 ### Installation
@@ -55,6 +61,8 @@ The preference data should be in one of these formats:
 ```
 
 #### Run CritiQ Flow
+
+![](./assets/critiqflow.png)
 
 See `demo.py` for a complete example. Key steps:
 1. Configure your model settings and API keys
