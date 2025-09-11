@@ -126,4 +126,20 @@ CUDA_VISIBLE_DEVICES=0 python -m critiq.scripts.reward_predict_vllm \
 
 #### Perform Sampling
 
-Use the scored results to sample high-quality data based on the learned criteria.
+Use the scored results to sample high-quality data based on the learned criteria. For efficient temperature-based sampling with Gumbel distribution, refer to: https://github.com/princeton-nlp/QuRating/blob/main/data_tools/select_subset.py
+
+## Citation
+
+If you find our work helpful, please consider citing it in your publications:
+
+```bibtex
+@misc{guo2025critiqminingdataquality,
+      title={CritiQ: Mining Data Quality Criteria from Human Preferences}, 
+      author={Honglin Guo and Kai Lv and Qipeng Guo and Tianyi Liang and Zhiheng Xi and Demin Song and Qiuyinzhe Zhang and Yu Sun and Kai Chen and Xipeng Qiu and Tao Gui},
+      year={2025},
+      eprint={2502.19279},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2502.19279}, 
+}
+```
